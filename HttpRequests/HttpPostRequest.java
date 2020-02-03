@@ -1,0 +1,81 @@
+package com.example.lab1.HttpRequests;
+
+import android.net.Uri;
+import android.os.AsyncTask;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class HttpPostRequest extends AsyncTask<String, Void, String> {
+    public static final String REQUEST_METHOD = "POST";
+    public static final int READ_TIMEOUT = 15000;
+    public static final int CONNECTION_TIMEOUT = 15000;
+
+    @Override
+    protected String doInBackground(String... params){
+        String stringUrl = params[0];
+        String quantity = params[1];
+        String name = params[2];
+        String composition = params[3];
+        String use = params[4];
+        String recipe = params[5];
+        String price = params[6];
+        String result;
+        String inputLine;
+        Uri builder = new Uri.Builder()
+                .appendQueryParameter("id","-1")
+                .appendQueryParameter("quantity",quantity)
+                .appendQueryParameter("name",name)
+                .appendQueryParameter("composition", composition)
+                .appendQueryParameter("use",use)
+                .appendQueryParameter("recipe_required",recipe)
+                .appendQueryParameter("price",price)
+                .build();
+        stringUrl += builder.toString();
+        try {
+            //Create a URL object holding our url
+            URL myUrl = new URL(stringUrl);
+            //Create a connection
+            HttpURLConnection connection =(HttpURLConnection)
+                    myUrl.openConnection();
+
+            //Set methods and timeouts
+            //connection.setRequestProperty("id",id);
+            connection.setRequestMethod(REQUEST_METHOD);
+            connection.setReadTimeout(READ_TIMEOUT);
+            connection.setConnectTimeout(CONNECTION_TIMEOUT);
+
+            //Connect to our url
+            connection.connect();
+
+            //Create a new InputStreamReader
+            InputStreamReader streamReader = new
+                    InputStreamReader(connection.getInputStream());
+            //Create a new buffered reader and String Builder
+            BufferedReader reader = new BufferedReader(streamReader);
+            //Check if the line we are reading is not null
+            if ((inputLine = reader.readLine()) != null){
+                result = inputLine;
+            }
+            else {
+                result = null;
+            }
+            //Close our InputStream and Buffered reader
+            reader.close();
+            streamReader.close();
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+            result = null;
+        }
+
+        return result;
+    }
+    @Override
+    protected void onPostExecute(String result){
+        super.onPostExecute(result);
+    }
+}
